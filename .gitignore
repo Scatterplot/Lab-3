@@ -1,0 +1,10 @@
+
+*.xml
+
+manifest.mf
+
+nbproject/genfiles.properties
+
+nbproject/project.properties
+
+nbproject/private/private.properties
