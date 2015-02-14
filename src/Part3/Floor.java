@@ -1,65 +1,71 @@
 package Part3;
 
+/**
+ * Created by Nathan Bingham on 2/14/15.
+ */
+
 import Part3.Elevator.ElevatorFullException;
+
+import java.util.Random;
 
 public class Floor
 {
+    public final int MAX_PASSENGERS = 20;
+
     private int floorNum;
-    private int passengersUp;
-    private int passengersDown;
+    private int nextPassenger;
+    private Passenger[] passengers;
 
     public Floor(int floor)
     {
-        floorNum = floor;
-        passengersUp = 0;
-        passengersDown = 0;
+        this.floorNum = floor+1;
+        this.nextPassenger = 0;
+        this.passengers = new Passenger[MAX_PASSENGERS];
+
+        Random random = new Random();
+
+        for (int i = 0; i < MAX_PASSENGERS; i++)
+        {
+            if (random.nextBoolean() && random.nextBoolean())
+            {
+                int newFloor;
+                do
+                {
+                    newFloor = random.nextInt() % Elevator.NUM_FLOORS;
+                } while (newFloor < 0 || newFloor > Elevator.NUM_FLOORS);
+
+                this.newPassenger(new Passenger(newFloor));
+            }
+        }
     }
 
-    public void unloadPassengers(Elevator elev, boolean going_up)
+    public void loadPassengers(Elevator elev)
     {
-        int passengers = going_up ? passengersUp : passengersDown;
-        int passengerOld = passengers;
-        for (; passengers > 0; passengers--)
+        int i = this.nextPassenger - 1;
+        for (; i >= 0; i--)
         {
             try
             {
-                elev.boardPassenger(1);
+                elev.boardPassenger(passengers[i]);
             }
-            catch (ElevatorFullException e)
+            catch (ElevatorFullException efe)
             {
-                System.out.println(e.getMessage());
-                elev.registerRequest(floorNum);
                 break;
             }
         }
-        System.out.println("Loaded: "+(passengerOld-passengers));
 
-        if (going_up)
-        {
-            passengersUp = passengers;
-        }
-        else
-        {
-            passengersDown = passengers;
-        }
+        this.nextPassenger = i;
     }
 
-    /**
-     * Testing function
-     */
-    public void addPassenger(boolean going_up)
+    public void newPassenger(Passenger passenger)
     {
-        if (going_up)
-        {
-            passengersUp++;
-        } else
-        {
-            passengersDown++;
-        }
+        if (this.nextPassenger < this.MAX_PASSENGERS)
+        this.passengers[this.nextPassenger] = passenger;
+        this.nextPassenger++;
     }
     
     public String toString()
     {
-        return "Floor: "+floorNum+", Passengers Up: "+passengersUp+", Passengers Down: "+passengersDown; //STUB
+        return "Floor: "+this.floorNum+", Passengers: "+this.nextPassenger;
     }
 }
